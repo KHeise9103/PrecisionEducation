@@ -11,8 +11,21 @@ body {
   min-height: 100vh;
 }
 
+.patient-toggle {
+  display: none;
+}
+
+.drawer-close {
+  display: none;
+}
+
+.drawer-backdrop {
+  display: none;
+}
+
 .patient-banner {
   width: 235px;
+  min-width: 235px;
   background: #063b57;
   color: white;
   padding: 12px;
@@ -67,9 +80,13 @@ body {
   flex: 1;
   background: #eef2f6;
   overflow-y: auto;
+  max-height: 100vh;
 }
 
 .top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
   background: #006aa6;
   padding: 7px 8px 0;
   display: flex;
@@ -94,6 +111,9 @@ body {
 }
 
 .module-header {
+  position: sticky;
+  top: 43px;
+  z-index: 190;
   height: 70px;
   background: white;
   padding: 10px 18px;
@@ -117,6 +137,12 @@ body {
   color: #5f6c7b;
 }
 
+.module-label {
+  font-size: 12px;
+  color: #5f6c7b;
+  font-weight: 600;
+}
+
 select {
   padding: 5px 8px;
   border: 1px solid #9aa8b5;
@@ -126,6 +152,9 @@ select {
 }
 
 .alert-strip {
+  position: sticky;
+  top: 113px;
+  z-index: 180;
   background: #d40000;
   color: white;
   padding: 8px 16px;
@@ -230,25 +259,6 @@ button {
   cursor: not-allowed;
 }
 
-.education-output {
-  margin-top: 12px;
-  border-top: 1px solid #d5dbe2;
-  padding-top: 10px;
-}
-
-.education-output h2 {
-  margin: 0 0 8px;
-  font-size: 16px;
-}
-
-.education-output pre {
-  white-space: pre-wrap;
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.4;
-  font-size: 13px;
-  margin: 0;
-}
-
 .action-card {
   border-left: 6px solid #2e7a28;
   min-height: auto;
@@ -267,4 +277,218 @@ button {
   font-size: 15px;
   padding: 12px 18px;
   background: #2e7a28;
+}
+
+.learning-output {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.insight-card {
+  background: #ffffff;
+  border: 1px solid #cfd8e2;
+  border-left: 6px solid #2e7a28;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  min-height: 160px;
+}
+
+.insight-card h2 {
+  margin: 0 0 10px;
+  color: #005b91;
+  font-size: 18px;
+}
+
+.insight-card h3 {
+  margin: 12px 0 4px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.insight-card ul {
+  margin: 4px 0 10px 18px;
+  padding: 0;
+}
+
+.insight-card li {
+  margin-bottom: 5px;
+  line-height: 1.35;
+}
+
+.insight-card a {
+  color: #005b91;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.insight-card a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #b00020;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.epic-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.epic-table th {
+  background: #e8edf2;
+  text-align: left;
+  padding: 6px;
+  border: 1px solid #cfd8e2;
+}
+
+.epic-table td {
+  padding: 6px;
+  border: 1px solid #cfd8e2;
+}
+
+.epic-table tr:nth-child(even) {
+  background: #f7f9fb;
+}
+
+@media (max-width: 900px) {
+  .patient-banner {
+    width: 235px;
+    min-width: 235px;
+  }
+
+  .main-area {
+    min-width: 720px;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .epic-shell {
+    flex-direction: row;
+  }
+
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .wide {
+    grid-column: span 4;
+  }
+
+  .module-header {
+    height: 70px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .module-header select {
+    min-width: 260px;
+    width: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .epic-shell {
+    display: block;
+  }
+
+  .patient-toggle {
+    display: block;
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 700;
+    background: #063b57;
+    color: white;
+    border: 1px solid #0b78b8;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-weight: 700;
+  }
+
+  .drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    z-index: 550;
+  }
+
+  .drawer-close {
+    display: block;
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 28px;
+  }
+
+  .patient-banner {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    width: 245px;
+    min-width: 245px;
+    z-index: 600;
+    transition: left 0.25s ease;
+  }
+
+  .patient-banner.open {
+    left: 0;
+  }
+
+  .main-area {
+    min-width: 0;
+    width: 100%;
+    max-height: none;
+  }
+
+  .top-bar {
+    position: sticky;
+    top: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-left: 76px;
+  }
+
+  .module-header {
+    top: 43px;
+    height: auto;
+    padding: 10px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .module-header h1 {
+    font-size: 28px;
+  }
+
+  .module-header select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .alert-strip {
+    top: 127px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wide {
+    grid-column: span 1;
+  }
+
+  .learning-output {
+    grid-template-columns: 1fr;
+  }
 }
