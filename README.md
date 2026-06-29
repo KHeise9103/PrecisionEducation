@@ -1,5 +1,13 @@
-# Vue 3 + Vite
+# Precision Education Prototype v27
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Leadership demo cleanup.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+Updates in this version:
+- Removed the standalone Educational Intelligence page from the navigation.
+- Removed the standalone Portfolio page from the navigation.
+- Kept educational intelligence as the engine/pipeline language across the platform rather than a separate destination.
+- Kept artifact/dossier value embedded inside Clinical Learning and Teaching Companion.
+- Home now points users to Clinical Learning, Teaching Companion, Programs, and Epic View.
+
+The core demo story is now:
+Clinical context -> learner brief -> teaching companion -> deidentified program summary -> Epic workflow entry point.
