@@ -67,11 +67,20 @@ const nav = ['Home', 'Clinical Learning', 'Faculty', 'Programs', 'Epic View']
 const patientContextWorkspaces = ['Clinical Learning', 'Faculty', 'Epic View']
 const needsPatientContext = computed(() => patientContextWorkspaces.includes(activeWorkspace.value))
 
+const pageSubtitle = computed(() => {
+  if (activeWorkspace.value === 'Home') return 'Enterprise educational intelligence for clinical learning.'
+  if (activeWorkspace.value === 'Clinical Learning') return 'Generate a personalized learning brief from the current patient context.'
+  if (activeWorkspace.value === 'Faculty') return 'Create a practical teaching brief for the supervising clinician.'
+  if (activeWorkspace.value === 'Programs') return 'Review deidentified platform activity and emerging learning themes.'
+  if (activeWorkspace.value === 'Epic View') return 'Show how Precision Education can appear inside the clinical workflow.'
+  return 'Transforming clinical context into personalized, workflow-integrated learning.'
+})
+
 const selectedDx = computed(() => selectedPatient.value?.encounter?.primaryDiagnosis || 'Clinical context')
 const firstBarrier = computed(() => selectedPatient.value?.dischargePlanning?.barriers?.[0] || 'Learning opportunity identified')
 const abnormalLabs = computed(() => (selectedPatient.value?.labs || []).filter(l => l.flag && l.flag !== 'Normal'))
 
-const teachingFocusOptions = computed(() => buildTeachingFocusOptions(selectedPatient.value))
+const teachingFocusOptions = computed(() => buildTeachingFocusOptions(selectedPatient.value, selectedPersona.value, selectedSpecialty.value))
 
 watch(
   [() => selectedPatient.value?.id, teachingFocusOptions],
@@ -487,55 +496,194 @@ function inferLearningOpportunity(dx) {
   return 'Patient-specific clinical learning'
 }
 
-function buildTeachingFocusOptions(patient) {
-  const dx = (patient?.encounter?.primaryDiagnosis || '').toLowerCase()
+function buildTeachingFocusOptions(patient, learnerRole, specialty) {
+  const diagnosis = patient?.encounter?.primaryDiagnosis || 'this condition'
+  const dx = diagnosis.toLowerCase()
+  const role = learnerRole || 'Learner'
+  const roleLower = role.toLowerCase()
+  const specialtyContext = specialty || 'clinical care'
   const barriers = patient?.dischargePlanning?.barriers || []
+
+  const conditionShort = dx.includes('tumor lysis') ? 'TLS' : diagnosis
+  const overview = `How to teach ${diagnosis} in 5 minutes for a ${role}`
+
+  const roleSpecific = []
+
+  if (roleLower.includes('medical student')) {
+    roleSpecific.push(
+      `How to teach the basic mechanism of ${diagnosis} without overwhelming a medical student`,
+      'How to connect one chart finding to one core concept',
+      'What questions should a medical student ask their preceptor about this patient?'
+    )
+  } else if (roleLower.includes('pgy-1')) {
+    roleSpecific.push(
+      `How to help a PGY-1 explain why this patient's findings fit ${diagnosis}`,
+      'How to coach bedside monitoring and escalation awareness for an intern',
+      'How to help the learner explain the diagnosis in plain language to the patient'
+    )
+  } else if (roleLower.includes('pgy-2') || roleLower.includes('pgy-3')) {
+    roleSpecific.push(
+      `How to push a senior resident from recognition to prioritization in ${specialtyContext}`,
+      'How to teach clinical reasoning traps and competing priorities',
+      'How to coach supervision of a junior learner using this patient context'
+    )
+  } else if (roleLower.includes('fellow')) {
+    roleSpecific.push(
+      `How to teach advanced reasoning and team leadership for ${diagnosis}`,
+      'How to coach a fellow to supervise residents without taking over the encounter',
+      'How to connect specialty-level evidence review to bedside teaching'
+    )
+  } else if (roleLower.includes('advanced practice')) {
+    roleSpecific.push(
+      `How to teach APP-focused assessment and patient education for ${diagnosis}`,
+      'How to connect monitoring priorities to patient communication',
+      'How to coach escalation language and interprofessional handoff'
+    )
+  } else if (roleLower.includes('registered nurse')) {
+    roleSpecific.push(
+      `How to teach bedside monitoring priorities for ${diagnosis}`,
+      'How to recognize changes that should prompt team communication',
+      'How to explain the condition and monitoring plan in patient-friendly language'
+    )
+  } else if (roleLower.includes('respiratory therapist')) {
+    roleSpecific.push(
+      `How respiratory status fits into the learning conversation for ${diagnosis}`,
+      'What respiratory findings or support needs should be monitored and communicated?',
+      'How to teach device, breathing, oxygen, or airway-related education when relevant'
+    )
+  } else if (roleLower.includes('pharmacist')) {
+    roleSpecific.push(
+      `How to teach medication safety and monitoring issues related to ${diagnosis}`,
+      'What medications, renal dosing issues, or adverse effects should be reviewed?',
+      'How to coach source verification for medication-related evidence'
+    )
+  } else if (roleLower.includes('interprofessional')) {
+    roleSpecific.push(
+      `How to turn ${diagnosis} into an interprofessional teaching moment`,
+      'What should each discipline notice, communicate, and clarify?',
+      'How to practice shared patient explanation and team communication'
+    )
+  }
+
+  const conditionSpecific = []
+
   if (dx.includes('tumor lysis')) {
-    return [
-      'Why tumor lysis changes potassium, phosphorus, calcium, uric acid, and kidney function',
-      'How to teach TLS monitoring without turning it into a treatment recommendation',
-      'How to explain frequent labs and kidney monitoring to an overwhelmed patient',
-      'How to coach a PGY-1 through safe evidence review for TLS'
-    ]
+    if (roleLower.includes('respiratory therapist')) {
+      conditionSpecific.push(
+        'How to teach respiratory reassessment in a patient with metabolic and renal risk',
+        'How respiratory findings fit into escalation conversations for TLS'
+      )
+    } else if (roleLower.includes('pharmacist')) {
+      conditionSpecific.push(
+        'How to teach TLS medication review, renal function, and high-risk monitoring',
+        'How to discuss rasburicase, allopurinol, nephrotoxin avoidance, and lab trends educationally'
+      )
+    } else if (roleLower.includes('registered nurse')) {
+      conditionSpecific.push(
+        'How to teach bedside monitoring for TLS labs, urine output, symptoms, and escalation',
+        'How to explain frequent labs and kidney monitoring to an overwhelmed patient'
+      )
+    } else {
+      conditionSpecific.push(
+        'Why tumor lysis changes potassium, phosphorus, calcium, uric acid, and kidney function',
+        'How to teach TLS monitoring without turning it into a treatment recommendation',
+        'How to explain frequent labs and kidney monitoring to an overwhelmed patient'
+      )
+    }
+  } else if (dx.includes('diabetes')) {
+    if (roleLower.includes('pharmacist')) {
+      conditionSpecific.push(
+        'How to teach insulin safety, sick-day medication issues, and ketone-monitoring education',
+        'How to review insulin use during illness without giving patient-specific dosing instructions'
+      )
+    } else if (roleLower.includes('registered nurse')) {
+      conditionSpecific.push(
+        'How to teach bedside diabetes education, ketone checks, and family teach-back',
+        'How to assess adolescent self-management readiness during nursing education'
+      )
+    } else {
+      conditionSpecific.push(
+        'Why patients with type 1 diabetes need insulin even when they are not eating well',
+        'How to assess adolescent self-management readiness during diabetes teaching',
+        'How to coach a learner to explain ketone monitoring in plain language'
+      )
+    }
+  } else if (dx.includes('asthma')) {
+    if (roleLower.includes('respiratory therapist')) {
+      conditionSpecific.push(
+        'How to teach inhaler and spacer technique using observation and feedback',
+        'How to coach breathing assessment, response to therapy, and caregiver teach-back'
+      )
+    } else if (roleLower.includes('registered nurse')) {
+      conditionSpecific.push(
+        'How to teach discharge readiness, return precautions, and caregiver teach-back',
+        'How to recognize caregiver concerns that need reinforcement before discharge'
+      )
+    } else {
+      conditionSpecific.push(
+        'How to teach spacer technique using observation and feedback',
+        'How to coach return precautions in plain language',
+        'How to turn caregiver concern into a brief teaching moment'
+      )
+    }
+  } else if (dx.includes('heart failure')) {
+    if (roleLower.includes('pharmacist')) {
+      conditionSpecific.push(
+        'How to teach medication adherence, access barriers, and safety monitoring in heart failure',
+        'How to connect renal function and diuresis to medication review educationally'
+      )
+    } else if (roleLower.includes('registered nurse')) {
+      conditionSpecific.push(
+        'How to teach daily weights, sodium awareness, and when to call the care team',
+        'How to identify discharge education gaps during bedside care'
+      )
+    } else {
+      conditionSpecific.push(
+        'How to teach daily weights and sodium restriction without overwhelming the patient',
+        'How to connect kidney function, diuresis, and medication adherence as a learning conversation',
+        'How to coach a learner through patient-centered discharge education'
+      )
+    }
+  } else if (dx.includes('sepsis') || dx.includes('pneumonia')) {
+    if (roleLower.includes('respiratory therapist')) {
+      conditionSpecific.push(
+        'How to teach oxygen needs, work of breathing, and reassessment after stabilization',
+        'How to communicate respiratory trajectory and escalation concerns to the team'
+      )
+    } else if (roleLower.includes('registered nurse')) {
+      conditionSpecific.push(
+        'How to teach bedside reassessment, delirium risk, and escalation language in sepsis',
+        'How to use interpreter-supported education as a teaching moment'
+      )
+    } else if (roleLower.includes('pharmacist')) {
+      conditionSpecific.push(
+        'How to teach antibiotic allergy history, renal dosing, and source verification in pneumonia',
+        'How to connect medication safety to sepsis reassessment educationally'
+      )
+    } else {
+      conditionSpecific.push(
+        'How to teach clinical trajectory and reassessment after initial stabilization',
+        'How to use interpreter-supported education as a teaching moment',
+        'How to coach safe evidence review in an acutely ill patient context'
+      )
+    }
   }
-  if (dx.includes('diabetes')) {
-    return [
-      'Sick-day education, insulin physiology, and patient communication',
-      'Why patients with type 1 diabetes need insulin even when they are not eating well',
-      'How to assess adolescent self-management readiness during diabetes teaching',
-      'How to coach a learner to explain ketone monitoring in plain language'
-    ]
-  }
-  if (dx.includes('asthma')) {
-    return [
-      'Discharge readiness, inhaler technique, and teach-back',
-      'How to teach spacer technique using observation and feedback',
-      'How to coach return precautions in plain language',
-      'How to turn caregiver concern into a brief teaching moment'
-    ]
-  }
-  if (dx.includes('heart failure')) {
-    return [
-      'Volume assessment, self-management, and readmission prevention',
-      'How to teach daily weights and sodium restriction without overwhelming the patient',
-      'How to connect kidney function, diuresis, and medication adherence as a learning conversation',
-      'How to coach a learner through patient-centered discharge education'
-    ]
-  }
-  if (dx.includes('sepsis') || dx.includes('pneumonia')) {
-    return [
-      'Reassessment, communication, and escalation awareness',
-      'How to teach clinical trajectory and reassessment after initial stabilization',
-      'How to use interpreter-supported education as a teaching moment',
-      'How to coach safe evidence review in an acutely ill patient context'
-    ]
-  }
-  return [
-    inferLearningOpportunity(patient?.encounter?.primaryDiagnosis),
-    `How to teach ${patient?.encounter?.primaryDiagnosis || 'this condition'} in 5 minutes`,
-    barriers[0] ? `How to address: ${barriers[0]}` : 'How to connect the chart to a focused teaching question',
+
+  const fallback = [
+    overview,
+    barriers[0] ? `How to teach around this barrier: ${barriers[0]}` : 'How to connect the chart to a focused teaching question',
     'How to coach the learner to explain the key concept in plain language'
   ]
+
+  return uniqueList([
+    ...conditionSpecific,
+    ...roleSpecific,
+    ...fallback
+  ]).slice(0, 5)
+}
+
+function uniqueList(items) {
+  return items.filter((item, index, arr) => item && arr.indexOf(item) === index)
 }
 
 function chooseTeachingFocus(focus) {
@@ -712,9 +860,8 @@ function exportDossier() {
 
       <header class="enterprise-header" :class="{ 'with-context-controls': needsPatientContext }">
         <div class="enterprise-title-block">
-          <p class="eyebrow">Precision Education</p>
           <h1>{{ activeWorkspace }}</h1>
-          <p>Transforming clinical context into personalized, workflow-integrated learning.</p>
+          <p>{{ pageSubtitle }}</p>
         </div>
 
         <div v-if="needsPatientContext" class="header-context-controls">

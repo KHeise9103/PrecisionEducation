@@ -1,13 +1,23 @@
-# Precision Education Prototype v27
+# Precision Education Prototype v31
 
-Leadership demo cleanup.
+Updates:
+- Restored persistent sidebar branding with logo + product name.
+- Removed duplicate "Precision Education" label from page headers.
+- Page headers now show only the current workspace and a short task-specific subtitle.
+- Role-aware suggested learning topics remain included.
 
-Updates in this version:
-- Removed the standalone Educational Intelligence page from the navigation.
-- Removed the standalone Portfolio page from the navigation.
-- Kept educational intelligence as the engine/pipeline language across the platform rather than a separate destination.
-- Kept artifact/dossier value embedded inside Clinical Learning and Teaching Companion.
-- Home now points users to Clinical Learning, Teaching Companion, Programs, and Epic View.
+Run locally:
 
-The core demo story is now:
-Clinical context -> learner brief -> teaching companion -> deidentified program summary -> Epic workflow entry point.
+```bash
+npm install
+npm run dev
+```
+
+Build:
+
+```bash
+npm run build
+```
+
+
+Version 31 adds role-aware faculty teaching topic suggestions so the Teaching Companion changes based on learner role and specialty/context.

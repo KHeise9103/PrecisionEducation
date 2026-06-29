@@ -25,44 +25,247 @@ watch([() => props.patient?.id, () => props.learnerRole, () => props.clinicalSpe
 const diagnosis = computed(() => props.patient?.encounter?.primaryDiagnosis || 'this condition')
 const patientName = computed(() => props.patient?.name || 'this patient')
 
-const learningIntents = computed(() => [
-  {
-    id: 'condition_overview',
-    label: `Explain ${diagnosis.value} in 5 minutes`,
-    shortLabel: 'Condition overview',
-    question: `Explain ${diagnosis.value} in 5 minutes for a ${props.patient?.age || ''}-year-old patient.`,
-    helper: 'Fast overview of the disease or clinical problem.'
-  },
-  {
-    id: 'lab_interpretation',
-    label: 'Why are these labs abnormal?',
-    shortLabel: 'Abnormal labs',
-    question: `Why are this patient's labs abnormal in the context of ${diagnosis.value}?`,
-    helper: 'Connect abnormal labs to the condition.'
-  },
-  {
-    id: 'monitoring_priorities',
-    label: 'What should I monitor and why?',
-    shortLabel: 'What to monitor',
-    question: `What should I monitor for this patient with ${diagnosis.value}, and why does each item matter?`,
-    helper: 'Learn what changes matter and why.'
-  },
-  {
-    id: 'patient_explanation',
-    label: 'How would I explain this to the patient?',
-    shortLabel: 'Patient explanation',
-    question: `How would I explain ${diagnosis.value} to this patient or family in plain language?`,
-    helper: 'Practice clear, patient-centered communication.'
-  },
-  {
-    id: 'preceptor_questions',
-    label: 'What should I ask my preceptor?',
-    shortLabel: 'Ask my preceptor',
-    question: `What are the best learning questions to ask my preceptor about this patient with ${diagnosis.value}?`,
-    helper: 'Prepare for bedside or rounds discussion.'
-  }
-])
+const learningIntents = computed(() => {
+  const condition = diagnosis.value
+  const role = props.learnerRole || 'Learner'
+  const specialty = props.clinicalSpecialty || 'clinical context'
 
+  const overview = {
+    id: 'condition_overview',
+    label: `Explain ${condition} in 5 minutes`,
+    shortLabel: 'Condition overview',
+    question: `Explain ${condition} in 5 minutes for a ${role} in ${specialty}.`,
+    helper: 'Fast overview of the disease or clinical problem.'
+  }
+
+  if (role.includes('Medical Student')) {
+    return [
+      overview,
+      {
+        id: 'pathophysiology_basics',
+        label: 'What is the basic pathophysiology?',
+        shortLabel: 'Basic pathophysiology',
+        question: `What is the basic pathophysiology of ${condition}, explained for a medical student?`,
+        helper: 'Build the foundation before clinical application.'
+      },
+      {
+        id: 'recognition_findings',
+        label: 'What findings should I recognize?',
+        shortLabel: 'Recognize key findings',
+        question: `What key findings should a medical student recognize in this patient with ${condition}?`,
+        helper: 'Focus on pattern recognition and chart interpretation.'
+      },
+      {
+        id: 'preceptor_questions',
+        label: 'What should I ask my preceptor?',
+        shortLabel: 'Ask my preceptor',
+        question: `What are good questions for a medical student to ask a preceptor about this patient with ${condition}?`,
+        helper: 'Prepare for bedside or rounds discussion.'
+      }
+    ]
+  }
+
+  if (role.includes('PGY-1')) {
+    return [
+      overview,
+      {
+        id: 'lab_interpretation',
+        label: 'Why are these labs abnormal?',
+        shortLabel: 'Abnormal labs',
+        question: `Why are this patient's labs abnormal in the context of ${condition}?`,
+        helper: 'Connect abnormal labs to the condition.'
+      },
+      {
+        id: 'monitoring_priorities',
+        label: 'What should I monitor and why?',
+        shortLabel: 'What to monitor',
+        question: `What should a PGY-1 monitor for this patient with ${condition}, and why does each item matter?`,
+        helper: 'Learn what changes matter and why.'
+      },
+      {
+        id: 'patient_explanation',
+        label: 'How would I explain this to the patient?',
+        shortLabel: 'Patient explanation',
+        question: `How would I explain ${condition} to this patient or family in plain language?`,
+        helper: 'Practice clear, patient-centered communication.'
+      },
+      {
+        id: 'preceptor_questions',
+        label: 'What should I ask my preceptor?',
+        shortLabel: 'Ask my preceptor',
+        question: `What are the best learning questions to ask my preceptor about this patient with ${condition}?`,
+        helper: 'Prepare for bedside or rounds discussion.'
+      }
+    ]
+  }
+
+  if (role.includes('PGY-2') || role.includes('PGY-3') || role.includes('Fellow')) {
+    return [
+      overview,
+      {
+        id: 'clinical_reasoning',
+        label: 'What are the key clinical reasoning traps?',
+        shortLabel: 'Reasoning traps',
+        question: `What clinical reasoning traps should a ${role} watch for when learning from this patient with ${condition}?`,
+        helper: 'Focus on advanced reasoning, uncertainty, and supervision.'
+      },
+      {
+        id: 'evidence_review',
+        label: 'What evidence or guideline should I review?',
+        shortLabel: 'Evidence review',
+        question: `What evidence or guideline should a ${role} review to better understand ${condition} in this patient context?`,
+        helper: 'Practice source selection and evidence verification.'
+      },
+      {
+        id: 'teach_junior',
+        label: 'How should I teach this to a junior learner?',
+        shortLabel: 'Teach junior learner',
+        question: `How should a ${role} teach the key learning points from this patient with ${condition} to a junior learner?`,
+        helper: 'Turn this patient into a brief teaching moment.'
+      },
+      {
+        id: 'escalation_awareness',
+        label: 'What should I escalate or confirm?',
+        shortLabel: 'Escalation awareness',
+        question: `What uncertainty, escalation points, or supervisor-confirmation questions should a ${role} consider when learning about ${condition}?`,
+        helper: 'Clarify what needs supervision without generating patient-care directives.'
+      }
+    ]
+  }
+
+  if (role.includes('Registered Nurse')) {
+    return [
+      overview,
+      {
+        id: 'nursing_monitoring',
+        label: 'What should I monitor at the bedside?',
+        shortLabel: 'Bedside monitoring',
+        question: `What bedside monitoring concepts should a registered nurse understand for this patient with ${condition}?`,
+        helper: 'Focus on nursing observation and escalation awareness.'
+      },
+      {
+        id: 'nursing_escalation',
+        label: 'What symptoms should I report?',
+        shortLabel: 'Reportable symptoms',
+        question: `What symptoms or changes should a registered nurse understand as important to report for a patient with ${condition}?`,
+        helper: 'Build escalation awareness without issuing clinical orders.'
+      },
+      {
+        id: 'patient_explanation',
+        label: 'How should I explain this to the patient?',
+        shortLabel: 'Patient explanation',
+        question: `How should a registered nurse explain ${condition} to this patient or family in plain language?`,
+        helper: 'Practice patient-centered communication and teach-back.'
+      }
+    ]
+  }
+
+  if (role.includes('Respiratory Therapist')) {
+    return [
+      overview,
+      {
+        id: 'respiratory_assessment',
+        label: 'What respiratory findings matter most?',
+        shortLabel: 'Respiratory findings',
+        question: `What respiratory assessment findings matter most for a respiratory therapist learning from this patient with ${condition}?`,
+        helper: 'Focus on respiratory assessment and communication.'
+      },
+      {
+        id: 'rt_monitoring',
+        label: 'What should I monitor during therapy?',
+        shortLabel: 'RT monitoring',
+        question: `What should a respiratory therapist monitor during therapy for this patient context, and why?`,
+        helper: 'Connect therapy monitoring to patient status.'
+      },
+      {
+        id: 'patient_education',
+        label: 'How should I teach breathing or device technique?',
+        shortLabel: 'Patient education',
+        question: `How should a respiratory therapist teach breathing support, inhaler, spacer, or device technique when relevant to this patient with ${condition}?`,
+        helper: 'Practice clear teaching and teach-back.'
+      }
+    ]
+  }
+
+  if (role.includes('Pharmacist')) {
+    return [
+      overview,
+      {
+        id: 'medication_review',
+        label: 'What medications are relevant and why?',
+        shortLabel: 'Medication review',
+        question: `What medication-related learning points should a pharmacist review for this patient with ${condition}?`,
+        helper: 'Connect medications to learning, safety, and monitoring concepts.'
+      },
+      {
+        id: 'medication_safety',
+        label: 'What safety issues should I watch for?',
+        shortLabel: 'Medication safety',
+        question: `What medication safety concepts should a pharmacist understand in this patient context with ${condition}?`,
+        helper: 'Focus on educational safety concepts, not unsupervised medication changes.'
+      },
+      {
+        id: 'evidence_review',
+        label: 'What evidence should I verify?',
+        shortLabel: 'Evidence review',
+        question: `What evidence or guideline should a pharmacist verify to better understand this patient context with ${condition}?`,
+        helper: 'Practice source verification and applicability.'
+      }
+    ]
+  }
+
+  if (role.includes('Advanced Practice Provider')) {
+    return [
+      overview,
+      {
+        id: 'clinical_reasoning',
+        label: 'What should I understand before presenting?',
+        shortLabel: 'Clinical reasoning',
+        question: `What should an advanced practice provider understand before presenting this patient with ${condition}?`,
+        helper: 'Prepare a concise, supervised clinical learning discussion.'
+      },
+      {
+        id: 'monitoring_priorities',
+        label: 'What should I monitor and why?',
+        shortLabel: 'What to monitor',
+        question: `What monitoring concepts should an advanced practice provider understand for this patient with ${condition}?`,
+        helper: 'Connect patient data to monitoring rationale.'
+      },
+      {
+        id: 'patient_explanation',
+        label: 'How would I explain this to the patient?',
+        shortLabel: 'Patient explanation',
+        question: `How would an advanced practice provider explain ${condition} to this patient or family in plain language?`,
+        helper: 'Practice patient-centered communication.'
+      }
+    ]
+  }
+
+  return [
+    overview,
+    {
+      id: 'team_learning',
+      label: 'What should our team understand first?',
+      shortLabel: 'Team learning',
+      question: `What should an interprofessional team understand first about this patient with ${condition}?`,
+      helper: 'Create a shared mental model for the team.'
+    },
+    {
+      id: 'monitoring_priorities',
+      label: 'What should we monitor?',
+      shortLabel: 'What to monitor',
+      question: `What should the interprofessional team monitor conceptually for this patient with ${condition}, and why?`,
+      helper: 'Clarify shared monitoring concepts.'
+    },
+    {
+      id: 'patient_explanation',
+      label: 'How would we explain this in plain language?',
+      shortLabel: 'Plain language explanation',
+      question: `How should the interprofessional team explain ${condition} to this patient or family in plain language?`,
+      helper: 'Practice team-based communication.'
+    }
+  ]
+})
 const selectedIntentDetails = computed(() => learningIntents.value.find(i => i.id === selectedIntent.value) || learningIntents.value[0])
 
 const contextHighlights = computed(() => {

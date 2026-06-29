@@ -700,3 +700,93 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v28 sidebar mark-only brand */
+.brand-lockup.brand-compact {
+  justify-content: center;
+  margin: 0 0 22px;
+  padding: 8px 0 10px;
+}
+.brand-lockup.brand-compact img {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+}
+.brand-lockup.brand-compact strong,
+.brand-lockup.brand-compact span {
+  display: none;
+}
+
+/* v28 role-aware topic chips */
+.topic-chip-list,
+.intent-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+
+/* v29: remove duplicate sidebar branding; page header owns the Precision Education identity */
+.left-rail {
+  padding-top: 18px;
+}
+.left-rail .brand-lockup,
+.left-rail .brand-compact {
+  display: none !important;
+}
+.left-rail .nav-button:first-of-type {
+  margin-top: 0;
+}
+
+
+/* v30: product identity lives once in the sidebar; page header shows only the workspace */
+.left-rail {
+  padding: 22px 20px;
+}
+.left-rail .brand-lockup {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  margin: 2px 0 24px;
+  padding: 0 4px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.left-rail .brand-lockup img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.left-rail .brand-lockup strong {
+  display: block !important;
+  font-size: 19px;
+  line-height: 1.05;
+  color: #fff;
+  letter-spacing: -.02em;
+}
+.left-rail .brand-lockup span {
+  display: block !important;
+  margin-top: 5px;
+  color: #c8d8ec;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.enterprise-header {
+  padding: 20px 28px;
+}
+.enterprise-title-block .eyebrow {
+  display: none;
+}
+.enterprise-title-block h1 {
+  margin: 0 0 4px;
+  font-size: 34px;
+}
+.enterprise-title-block p {
+  max-width: 760px;
+}
+@media(max-width:1000px){
+  .left-rail .brand-lockup{
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+}
